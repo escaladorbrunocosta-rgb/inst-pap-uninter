@@ -1,0 +1,99 @@
+{
+  "entities": {
+    "Config": {
+      "title": "App Configuration",
+      "description": "Stores the brand name and knowledge base for the AI receptionist.",
+      "type": "object",
+      "properties": {
+        "brandName": {
+          "type": "string",
+          "description": "The name of the brand/company."
+        },
+        "knowledgeBase": {
+          "type": "string",
+          "description": "The text containing all the information the AI should use."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last time the config was updated."
+        },
+        "instagramLogin": {
+          "type": "string",
+          "description": "Instagram username for the profile."
+        },
+        "instagramPassword": {
+          "type": "string",
+          "description": "Instagram password for the profile."
+        },
+        "instagramAccessToken": {
+          "type": "string",
+          "description": "Meta Graph API Access Token."
+        },
+        "instagramPageId": {
+          "type": "string",
+          "description": "Instagram Page ID from Meta."
+        },
+        "whatsappPhoneNumberId": {
+          "type": "string",
+          "description": "WhatsApp Phone Number ID from Meta."
+        },
+        "whatsappAccessToken": {
+          "type": "string",
+          "description": "WhatsApp Business API Access Token."
+        }
+      },
+      "required": ["brandName", "knowledgeBase"]
+    },
+    "Message": {
+      "title": "Chat Message",
+      "description": "A single message in a chat conversation.",
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["user", "assistant"],
+          "description": "Who sent the message."
+        },
+        "content": {
+          "type": "string",
+          "description": "The message text."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the message was sent."
+        }
+      },
+      "required": ["role", "content", "timestamp"]
+    },
+    "Log": {
+      "title": "Activity Log",
+      "description": "Logs of interactions with the Instagram API.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "senderId": { "type": "string" },
+        "message": { "type": "string" },
+        "response": { "type": "string" },
+        "error": { "type": "string" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/configs/settings": {
+      "schema": "Config",
+      "description": "Global settings for the AI receptionist."
+    },
+    "/simulations/{simulationId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Messages for a specific chat simulation."
+    },
+    "/logs/{logId}": {
+      "schema": "Log",
+      "description": "Activity logs for Instagram interactions."
+    }
+  }
+}

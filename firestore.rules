@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == "escaladorbrunocosta@gmail.com" && 
+        request.auth.token.email_verified == true
+      );
+    }
+
+    // Config validation
+    function isValidConfig(data) {
+      return data.brandName is string && data.brandName.size() > 0 && data.brandName.size() < 100 &&
+             data.knowledgeBase is string && data.knowledgeBase.size() > 0 && data.knowledgeBase.size() < 10000 &&
+             (!('instagramLogin' in data) || (data.instagramLogin is string && data.instagramLogin.size() < 100)) &&
+             (!('instagramPassword' in data) || (data.instagramPassword is string && data.instagramPassword.size() < 100)) &&
+             (!('instagramAccessToken' in data) || (data.instagramAccessToken is string && data.instagramAccessToken.size() < 1000)) &&
+             (!('instagramPageId' in data) || (data.instagramPageId is string && data.instagramPageId.size() < 100)) &&
+             (!('whatsappPhoneNumberId' in data) || (data.whatsappPhoneNumberId is string && data.whatsappPhoneNumberId.size() < 100)) &&
+             (!('whatsappAccessToken' in data) || (data.whatsappAccessToken is string && data.whatsappAccessToken.size() < 1000));
+    }
+
+    // Message validation
+    function isValidMessage(data) {
+      return data.role in ['user', 'assistant'] &&
+             data.content is string && data.content.size() > 0 && data.content.size() < 2000;
+    }
+
+    match /configs/settings {
+      allow read: if true; // Publicly readable for the app to function
+      allow write: if isAdmin();
+    }
+
+    match /simulations/{simulationId} {
+      allow read, write: if true; // Simulations are public for demo purposes, or could be restricted to auth
+      
+      match /messages/{messageId} {
+        allow read: if true;
+        allow create: if isValidMessage(request.resource.data);
+      }
+    }
+
+    match /logs/{logId} {
+      allow read: if true; // Dashboard needs to read logs
+      allow write: if false; // Only server can write logs
+    }
+  }
+}
